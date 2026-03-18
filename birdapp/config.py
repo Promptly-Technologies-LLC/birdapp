@@ -212,8 +212,8 @@ def prompt_for_credentials(profile: str | None = None) -> None:
     """Prompt user for Twitter API credentials and save them."""
     print("X CLI Configuration")
     print("==================")
-    print("Please enter your Twitter API credentials.")
-    print("You can get these from https://developer.twitter.com/")
+    print("Please enter your X API credentials.")
+    print("You can get these from https://developer.x.com/")
     print("(Sensitive fields will be hidden as you type)")
     print()
     
@@ -224,8 +224,8 @@ def prompt_for_credentials(profile: str | None = None) -> None:
     profile_data = _ensure_profiles_config(config, profile_name)
     
     # Prompt for each credential (hide sensitive fields)
-    profile_data['X_API_KEY'] = getpass.getpass("API Key: ").strip()
-    profile_data['X_API_SECRET'] = getpass.getpass("API Secret: ").strip()
+    profile_data['X_API_KEY'] = getpass.getpass("Consumer Key: ").strip()
+    profile_data['X_API_SECRET'] = getpass.getpass("Secret Key: ").strip()
     profile_data['X_ACCESS_TOKEN'] = getpass.getpass("Access Token: ").strip()
     profile_data['X_ACCESS_TOKEN_SECRET'] = getpass.getpass("Access Token Secret: ").strip()
     profile_data['X_USERNAME'] = profile_name
@@ -236,6 +236,11 @@ def prompt_for_credentials(profile: str | None = None) -> None:
         print(f"\nError: Missing required fields: {', '.join(missing)}")
         return
     
+    # Clear any stale OAuth2 tokens for this profile so the app doesn't
+    # try to use them instead of the fresh OAuth1 credentials.
+    from .session import clear_oauth2_tokens
+    clear_oauth2_tokens(profile=profile_name)
+
     # Save the configuration
     try:
         config["active_profile"] = profile_name
@@ -270,8 +275,8 @@ def show_config(profile: str | None = None) -> None:
     if profile_name:
         print(f"  Profile: {profile_name}")
     print(f"  Username: {profile_data.get('X_USERNAME', 'Not set')}")
-    print(f"  API Key: {'*' * len(profile_data.get('X_API_KEY', '')) if profile_data.get('X_API_KEY') else 'Not set'}")
-    print(f"  API Secret: {'*' * len(profile_data.get('X_API_SECRET', '')) if profile_data.get('X_API_SECRET') else 'Not set'}")
+    print(f"  Consumer Key: {'*' * len(profile_data.get('X_API_KEY', '')) if profile_data.get('X_API_KEY') else 'Not set'}")
+    print(f"  Secret Key: {'*' * len(profile_data.get('X_API_SECRET', '')) if profile_data.get('X_API_SECRET') else 'Not set'}")
     print(f"  Access Token: {'*' * len(profile_data.get('X_ACCESS_TOKEN', '')) if profile_data.get('X_ACCESS_TOKEN') else 'Not set'}")
     print(f"  Access Token Secret: {'*' * len(profile_data.get('X_ACCESS_TOKEN_SECRET', '')) if profile_data.get('X_ACCESS_TOKEN_SECRET') else 'Not set'}")
     oauth2_app = _get_oauth2_app_config(config)
@@ -281,8 +286,8 @@ def show_config(profile: str | None = None) -> None:
         raw_scopes = oauth2_app.get("X_OAUTH2_SCOPES")
         scopes_display = raw_scopes or f"Default ({DEFAULT_OAUTH2_SCOPES})"
         print("OAuth2 App Configuration (shared):")
-        print("  OAuth2 Client ID: " + ("Set" if oauth2_app.get("X_OAUTH2_CLIENT_ID") else "Not set"))
-        print("  OAuth2 Client Secret: " + ("Set" if oauth2_app.get("X_OAUTH2_CLIENT_SECRET") else "Not set"))
+        print("  Client ID: " + ("Set" if oauth2_app.get("X_OAUTH2_CLIENT_ID") else "Not set"))
+        print("  Client Secret: " + ("Set" if oauth2_app.get("X_OAUTH2_CLIENT_SECRET") else "Not set"))
         print("  OAuth2 Redirect URI: " + (oauth2_app.get("X_OAUTH2_REDIRECT_URI") or "Not set"))
         print("  OAuth2 Scopes: " + scopes_display)
 
@@ -297,8 +302,8 @@ def prompt_for_oauth2_credentials(profile: str | None = None) -> None:
     _ = profile
     config = load_config()
     oauth2_app = _get_oauth2_app_config(config)
-    oauth2_app["X_OAUTH2_CLIENT_ID"] = input("OAuth2 Client ID: ").strip()
-    client_secret = getpass.getpass("OAuth2 Client Secret (optional): ").strip()
+    oauth2_app["X_OAUTH2_CLIENT_ID"] = input("Client ID: ").strip()
+    client_secret = getpass.getpass("Client Secret (optional): ").strip()
     if client_secret:
         oauth2_app["X_OAUTH2_CLIENT_SECRET"] = client_secret
     oauth2_app["X_OAUTH2_REDIRECT_URI"] = input("OAuth2 Redirect URI: ").strip()

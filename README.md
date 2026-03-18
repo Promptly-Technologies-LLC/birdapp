@@ -35,11 +35,19 @@ birdapp tweet --text "Hello world!"
 
 ## Configuration
 
-There are two login flows available through birdapp: OAuth1 and OAuth2. Both require [creating an X "app" in the X Developer Dashboard](https://developer.x.com/en/portal/projects-and-apps). Once you've created your app, click the "Keys and Tokens" button for the app to generate authentication credentials.
+There are two login flows available through birdapp: OAuth1 and OAuth2. Both require [creating an X "app" in the X Developer Dashboard](https://developer.x.com/en/portal/projects-and-apps).
 
-With OAuth1, you generate "Consumer Keys" ("API Key and Secret") and "Authentication Tokens" ("Access Token and Secret") that provide API access to a single X account. Store these in your birdapp config, and they work forever.
+**Important:** The X API no longer has a free tier. All API usage is billed on a usage basis. You will need to enable billing in your X Developer Dashboard and add funds to your account before you can make API calls.
 
-With OAuth2, you generate an "OAuth 2.0 Client ID and Client Secret" for your X app, store these app secrets in your birdapp config, and login to your X accounts via a two-step flow that involves authorizing the app per-account in your browser.
+When creating your app, X requires a **Website URL** and a **Callback URI**:
+- **Website URL**: You can enter any valid URL here (e.g., `https://example.com`).
+- **Callback URI**: Set this to `http://127.0.0.1:8080/callback`. Birdapp starts a local server at this address to capture the OAuth2 callback automatically.
+
+Once you've created your app, click the "Keys and Tokens" button for the app to generate authentication credentials.
+
+With OAuth1, you generate a "Consumer Key" and "Secret Key" along with an "Access Token" and "Access Token Secret" that provide API access to a single X account. Store these in your birdapp config, and they work forever.
+
+With OAuth2, you generate a "Client ID" and "Client Secret" for your X app, store these app secrets in your birdapp config, and login to your X accounts via a two-step flow that involves authorizing the app per-account in your browser.
 
 In general, OAuth1 is simpler for tweeting from a single account, while OAuth2 is better for tweeting from multiple accounts. (With OAuth1 you would need a separate developer account for each account you want to use.)
 
