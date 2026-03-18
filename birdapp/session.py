@@ -131,6 +131,31 @@ def get_user_session(user_id: str, profile: str | None = None) -> tuple[Optional
     return None, None 
 
 
+def clear_oauth2_tokens(profile: str | None = None) -> None:
+    """Remove all stored OAuth2 tokens for the given profile."""
+    sessions_dir = get_sessions_dir()
+    tokens_path = os.path.join(sessions_dir, "tokens.json")
+    tokens = _load_tokens(tokens_path)
+    if not tokens:
+        return
+
+    profiles = tokens.get("profiles")
+    if isinstance(profiles, dict):
+        profile_name = _resolve_profile(profile, tokens)
+        if profile_name and profile_name in profiles:
+            del profiles[profile_name]
+    else:
+        # Legacy format: clear all tokens
+        tokens.clear()
+
+    with open(tokens_path, "w") as f:
+        json.dump(tokens, f)
+    try:
+        os.chmod(tokens_path, 0o600)
+    except OSError:
+        pass
+
+
 def has_oauth2_token(profile: str | None = None) -> bool:
     """
     Return True if any OAuth2 token (with an access_token) exists for the given
