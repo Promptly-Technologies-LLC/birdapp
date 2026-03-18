@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.1.4 (2026-03-18)
+
+### Bug Fixes
+
+- Update credential names to match X dashboard and clear stale OAuth2 tokens
+  ([`4387d35`](https://github.com/Promptly-Technologies-LLC/birdapp/commit/4387d3589110769cc50e2816264d5c51918d785c))
+
+
 ## v2.1.3 (2026-03-13)
 
 ### Bug Fixes
