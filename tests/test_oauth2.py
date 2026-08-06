@@ -75,15 +75,17 @@ class TestOAuth2(unittest.TestCase):
         response.status_code = 401
         response.text = '{"error":"unauthorized_client","error_description":"Missing valid authorization header"}'
 
-        with patch("birdapp.oauth2.requests.post", return_value=response):
-            with self.assertRaises(RuntimeError) as ctx:
-                oauth2.exchange_code_for_token(
-                    code="code123",
-                    code_verifier="verifier123",
-                    redirect_uri="http://127.0.0.1:8080/callback",
-                    client_id="client123",
-                    client_secret=None,
-                )
+        with (
+            patch("birdapp.oauth2.requests.post", return_value=response),
+            self.assertRaises(RuntimeError) as ctx,
+        ):
+            oauth2.exchange_code_for_token(
+                code="code123",
+                code_verifier="verifier123",
+                redirect_uri="http://127.0.0.1:8080/callback",
+                client_id="client123",
+                client_secret=None,
+            )
 
         self.assertIn("Missing valid authorization header", str(ctx.exception))
         self.assertIn("confidential client", str(ctx.exception))

@@ -22,15 +22,17 @@ class TestEmbeddings(unittest.TestCase):
                 return_value=None,
             ),
             mock.patch("birdapp.storage.embeddings.get_credential", return_value=None),
+            self.assertRaises(RuntimeError),
         ):
-            with self.assertRaises(RuntimeError):
-                resolve_embedding_config(model_override=None)
+            resolve_embedding_config(model_override=None)
 
     def test_semantic_search_requires_embeddings(self) -> None:
         engine = get_engine("sqlite:///:memory:")
         init_db(engine)
-        with Session(engine) as session:
-            with self.assertRaises(EmbeddingsUnavailable) as exc:
-                semantic_search_tweets(session, query="hello", limit=5)
+        with (
+            Session(engine) as session,
+            self.assertRaises(EmbeddingsUnavailable) as exc,
+        ):
+            semantic_search_tweets(session, query="hello", limit=5)
 
         self.assertIn("No embeddings found", str(exc.exception))

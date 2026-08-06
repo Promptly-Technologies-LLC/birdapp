@@ -184,9 +184,9 @@ class TestTweetOAuth2(unittest.TestCase):
                         "X_OAUTH2_REDIRECT_URI": "http://127.0.0.1:8080/callback",
                     }.get(key),
                 ),
+                self.assertRaises(RuntimeError) as exc,
             ):
-                with self.assertRaises(RuntimeError) as exc:
-                    tweet_module.submit_tweet(text="hello")
+                tweet_module.submit_tweet(text="hello")
 
             message = str(exc.exception)
             self.assertIn("auth login", message)
@@ -236,9 +236,9 @@ class TestTweetOAuth2(unittest.TestCase):
                         "X_OAUTH2_REDIRECT_URI": "http://127.0.0.1:8080/callback",
                     }.get(key),
                 ),
+                self.assertRaises(RuntimeError) as exc,
             ):
-                with self.assertRaises(RuntimeError) as exc:
-                    tweet_module.submit_tweet(text="hello 401")
+                tweet_module.submit_tweet(text="hello 401")
 
             refresh.assert_not_called()
             save_token.assert_not_called()

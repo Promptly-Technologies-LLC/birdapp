@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from collections.abc import Iterable, Sequence
@@ -295,10 +296,10 @@ def _register_sqlite_vec_loader(engine: Engine) -> None:
                 "sqlite-vec extension could not be loaded."
             ) from exc
         finally:
-            try:
+            # Best-effort: re-locking extension loading must not mask an
+            # error raised while loading sqlite-vec above.
+            with contextlib.suppress(Exception):
                 dbapi_connection.enable_load_extension(False)
-            except Exception:
-                pass
 
 
 def _get_openai_client(api_key: str) -> Any:
