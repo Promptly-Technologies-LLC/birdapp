@@ -1,9 +1,8 @@
 import argparse
 import json
 import os
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
-from .tweet import post_tweet, get_tweets_by_ids
 from .config import (
     clear_profile_override,
     get_active_profile,
@@ -13,9 +12,9 @@ from .config import (
     prompt_for_credentials,
     prompt_for_oauth2_credentials,
     set_active_profile,
+    set_embedding_credentials,
     set_profile_override,
     show_config,
-    set_embedding_credentials,
     show_embedding_config,
 )
 from .oauth2 import oauth2_login_flow, oauth2_whoami
@@ -28,11 +27,17 @@ from .storage.embeddings import (
 )
 from .storage.importer import import_archive
 from .storage.search import search_results_payload, search_tweets_in_db
+from .tweet import get_tweets_by_ids, post_tweet
 from .user import (
-    get_user_by_id, get_users_by_ids,
-    get_user_by_username, get_users_by_usernames,
-    AVAILABLE_USER_FIELDS, AVAILABLE_EXPANSIONS, AVAILABLE_TWEET_FIELDS
+    AVAILABLE_EXPANSIONS,
+    AVAILABLE_TWEET_FIELDS,
+    AVAILABLE_USER_FIELDS,
+    get_user_by_id,
+    get_user_by_username,
+    get_users_by_ids,
+    get_users_by_usernames,
 )
+
 
 def _get_env_or_config(key: str) -> str | None:
     return os.getenv(key) or get_credential(key)
@@ -83,7 +88,7 @@ def _format_search_timestamp(value: datetime | None) -> str:
     if value is None:
         return "unknown"
     return (
-        value.astimezone(timezone.utc)
+        value.astimezone(UTC)
         .isoformat(timespec="milliseconds")
         .replace("+00:00", "Z")
     )
@@ -389,7 +394,7 @@ def main() -> None:
                 else:
                     print(json.dumps(result, indent=2))
             except Exception as e:
-                print(f"❌ Error during OAuth2 flow: {str(e)}")
+                print(f"❌ Error during OAuth2 flow: {e!s}")
         else:
             try:
                 result = oauth2_whoami(args.user_id, profile=profile)
@@ -398,7 +403,7 @@ def main() -> None:
                 else:
                     print(json.dumps(result, indent=2))
             except Exception as e:
-                print(f"❌ Error during OAuth2 flow: {str(e)}")
+                print(f"❌ Error during OAuth2 flow: {e!s}")
         return
     
     # Handle tweet command
@@ -436,7 +441,7 @@ def main() -> None:
                 print(f"❌ Failed to post tweet: {message}")
                 
         except Exception as e:
-            print(f"❌ Error posting tweet: {str(e)}")
+            print(f"❌ Error posting tweet: {e!s}")
     
     # Handle get command
     if args.command == 'get':
@@ -455,7 +460,7 @@ def main() -> None:
                 print(f"❌ Failed to get tweets: {result}")
                 
         except Exception as e:
-            print(f"❌ Error getting tweets: {str(e)}")
+            print(f"❌ Error getting tweets: {e!s}")
     
     # Handle user command
     if args.command == 'user':
@@ -520,7 +525,7 @@ def main() -> None:
                 print(f"❌ Failed to get user(s): {result}")
                 
         except Exception as e:
-            print(f"❌ Error getting user(s): {str(e)}")
+            print(f"❌ Error getting user(s): {e!s}")
 
     # Handle import-archive command
     if args.command == 'import-archive':
@@ -550,7 +555,7 @@ def main() -> None:
                 )
                 print(f"✅ Embedded {embedded} tweets")
         except Exception as e:
-            print(f"❌ Error importing archive: {str(e)}")
+            print(f"❌ Error importing archive: {e!s}")
         return
 
     # Handle search command
@@ -621,7 +626,7 @@ def main() -> None:
             if isinstance(e, EmbeddingsUnavailable):
                 print(str(e))
             else:
-                print(f"❌ Error searching tweets: {str(e)}")
+                print(f"❌ Error searching tweets: {e!s}")
         return
 
     # Handle embed command
@@ -644,7 +649,7 @@ def main() -> None:
             )
             print(f"✅ Embedded {embedded} tweets")
         except Exception as e:
-            print(f"❌ Error generating embeddings: {str(e)}")
+            print(f"❌ Error generating embeddings: {e!s}")
         return
 
 def format_tweets_output(data: dict, format_type: str):
@@ -735,10 +740,10 @@ def format_users_output(data: dict, format_type: str):
                 print(f"Tweets: {metrics.get('tweet_count', 0):,}")
                 print(f"Listed: {metrics.get('listed_count', 0):,}")
             
-            if 'verified' in user and user['verified']:
+            if user.get('verified'):
                 print("✓ Verified account")
             
-            if 'protected' in user and user['protected']:
+            if user.get('protected'):
                 print("🔒 Protected account")
             
             print("-" * 50)

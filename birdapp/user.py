@@ -1,9 +1,12 @@
+from typing import Any
+
 import requests
-from typing import List, Optional, Union, Tuple, Dict, Any
+
 from .auth import create_oauth1_auth
 from .config import load_config
 
-def get_user_by_id(user_id: str, user_fields: Optional[List[str]] = None, expansions: Optional[List[str]] = None, tweet_fields: Optional[List[str]] = None) -> Tuple[bool, Union[Dict[str, Any], str]]:
+
+def get_user_by_id(user_id: str, user_fields: list[str] | None = None, expansions: list[str] | None = None, tweet_fields: list[str] | None = None) -> tuple[bool, dict[str, Any] | str]:
     """
     Get user details by user ID
     
@@ -43,7 +46,7 @@ def get_user_by_id(user_id: str, user_fields: Optional[List[str]] = None, expans
     except Exception as e:
         return False, str(e)
 
-def get_users_by_ids(user_ids: List[str], user_fields: Optional[List[str]] = None, expansions: Optional[List[str]] = None, tweet_fields: Optional[List[str]] = None) -> Tuple[bool, Union[Dict[str, Any], str]]:
+def get_users_by_ids(user_ids: list[str], user_fields: list[str] | None = None, expansions: list[str] | None = None, tweet_fields: list[str] | None = None) -> tuple[bool, dict[str, Any] | str]:
     """
     Get multiple users by their IDs
     
@@ -86,7 +89,7 @@ def get_users_by_ids(user_ids: List[str], user_fields: Optional[List[str]] = Non
     except Exception as e:
         return False, str(e)
 
-def get_user_by_username(username: str, user_fields: Optional[List[str]] = None, expansions: Optional[List[str]] = None, tweet_fields: Optional[List[str]] = None) -> Tuple[bool, Union[Dict[str, Any], str]]:
+def get_user_by_username(username: str, user_fields: list[str] | None = None, expansions: list[str] | None = None, tweet_fields: list[str] | None = None) -> tuple[bool, dict[str, Any] | str]:
     """
     Get user details by username
     
@@ -129,7 +132,7 @@ def get_user_by_username(username: str, user_fields: Optional[List[str]] = None,
     except Exception as e:
         return False, str(e)
 
-def get_users_by_usernames(usernames: List[str], user_fields: Optional[List[str]] = None, expansions: Optional[List[str]] = None, tweet_fields: Optional[List[str]] = None) -> Tuple[bool, Union[Dict[str, Any], str]]:
+def get_users_by_usernames(usernames: list[str], user_fields: list[str] | None = None, expansions: list[str] | None = None, tweet_fields: list[str] | None = None) -> tuple[bool, dict[str, Any] | str]:
     """
     Get multiple users by their usernames
     

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+import zipfile
+from collections.abc import Iterable, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Optional, Sequence, TypeVar
+from typing import Any, TypeVar
 
 import requests
-import zipfile
 from sqlmodel import Session, select
 
 from .db import get_default_db_url, get_engine, get_session, init_db
@@ -158,7 +159,7 @@ def load_twitter_zip(path: str | Path) -> dict[str, Any]:
     return normalized
 
 
-def _safe_int(value: Any) -> Optional[int]:
+def _safe_int(value: Any) -> int | None:
     if value is None:
         return None
     if isinstance(value, int):
@@ -171,7 +172,7 @@ def _safe_int(value: Any) -> Optional[int]:
     return None
 
 
-def _indices_to_bounds(indices: Iterable[Any]) -> tuple[Optional[int], Optional[int]]:
+def _indices_to_bounds(indices: Iterable[Any]) -> tuple[int | None, int | None]:
     items = list(indices)
     if len(items) != 2:
         return None, None
@@ -182,13 +183,13 @@ def _exists(session: Session, model: type[ModelType], filters: Sequence[Any]) ->
     return session.exec(statement).first() is not None
 
 
-def _parse_archive_datetime(value: Any) -> Optional[datetime]:
+def _parse_archive_datetime(value: Any) -> datetime | None:
     if value is None:
         return None
     if isinstance(value, datetime):
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
     if isinstance(value, str):
         candidate = value.strip()
         if not candidate:
@@ -203,12 +204,12 @@ def _parse_archive_datetime(value: Any) -> Optional[datetime]:
             except ValueError:
                 return None
         if parsed.tzinfo is None:
-            return parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
+            return parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
     return None
 
 
-def _get_owner_account_id(data: dict[str, Any]) -> Optional[str]:
+def _get_owner_account_id(data: dict[str, Any]) -> str | None:
     account_list = data.get("account") or []
     if not account_list:
         return None
@@ -1047,11 +1048,11 @@ def import_archive_data(
 
 
 def import_archive(
-    db_url: Optional[str],
+    db_url: str | None,
     *,
-    username: Optional[str] = None,
-    url: Optional[str] = None,
-    path: Optional[str | Path] = None,
+    username: str | None = None,
+    url: str | None = None,
+    path: str | Path | None = None,
     batch_size: int = 1000,
 ) -> dict[str, int]:
     if not db_url:

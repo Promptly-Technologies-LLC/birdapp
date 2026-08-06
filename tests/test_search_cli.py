@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sys
 import unittest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest import mock
 
 from birdapp import main as main_module
@@ -16,7 +16,7 @@ class TestSearchCli(unittest.TestCase):
         sample_results = [
             SearchResult(
                 tweet_id="111",
-                created_at=datetime(2023, 5, 1, tzinfo=timezone.utc),
+                created_at=datetime(2023, 5, 1, tzinfo=UTC),
                 full_text="hello",
                 tweet_kind="tweet",
                 owner=SearchOwner(
@@ -68,7 +68,7 @@ class TestSearchCli(unittest.TestCase):
         sample_results = [
             SearchResult(
                 tweet_id="123",
-                created_at=datetime(2023, 5, 1, tzinfo=timezone.utc),
+                created_at=datetime(2023, 5, 1, tzinfo=UTC),
                 full_text="hello",
                 tweet_kind="tweet",
                 owner=SearchOwner(
@@ -104,7 +104,7 @@ class TestSearchCli(unittest.TestCase):
         sample_results = [
             SemanticSearchResult(
                 tweet_id="999",
-                created_at=datetime(2023, 5, 1, tzinfo=timezone.utc),
+                created_at=datetime(2023, 5, 1, tzinfo=UTC),
                 full_text="semantic",
                 tweet_kind="tweet",
                 owner_account_id="99",

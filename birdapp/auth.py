@@ -1,6 +1,9 @@
-from typing import Any, Dict
+from typing import Any
+
 from requests_oauthlib import OAuth1, OAuth2Session
+
 from .config import get_credential
+
 
 def create_oauth1_auth() -> OAuth1:
     """Create OAuth1 authentication object for Twitter API requests."""
@@ -26,6 +29,6 @@ def create_oauth1_auth() -> OAuth1:
         required_vars[3][1]   # X_ACCESS_TOKEN_SECRET
     )
 
-def create_oauth2_session(token: Dict[str, Any]) -> OAuth2Session:
+def create_oauth2_session(token: dict[str, Any]) -> OAuth2Session:
     """Create an OAuth2 session from an existing token."""
     return OAuth2Session(token=token)

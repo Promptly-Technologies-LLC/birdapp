@@ -1,7 +1,6 @@
 import argparse
 import os
 import sys
-from typing import Optional
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,9 +27,9 @@ def main() -> None:
         sys.path.insert(0, ROOT_DIR)
 
     from birdapp.oauth2 import (
+        DEFAULT_OAUTH2_SCOPES,
         build_authorize_url,
         create_pkce_pair,
-        DEFAULT_OAUTH2_SCOPES,
         exchange_code_for_token,
         get_user_me,
         wait_for_oauth_callback,
@@ -81,7 +80,7 @@ def main() -> None:
         client_secret=client_secret,
     )
     user_payload = get_user_me(token["access_token"])
-    user_id: Optional[str] = None
+    user_id: str | None = None
     if isinstance(user_payload.get("data"), dict):
         user_id = user_payload["data"].get("id")
     if not user_id:

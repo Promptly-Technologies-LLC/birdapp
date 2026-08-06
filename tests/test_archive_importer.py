@@ -1,6 +1,6 @@
 import unittest
-from typing import Any, cast
 from copy import deepcopy
+from typing import Any, cast
 
 from sqlalchemy import text
 from sqlmodel import Session, select

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, time, timezone
-from typing import Any, Optional
+from datetime import UTC, date, datetime, time
+from typing import Any
 
 from sqlalchemy import text
 from sqlmodel import Session, select
 
-from .db import get_default_db_url, get_engine, get_session, init_db
 from .dates import coerce_datetime, format_timestamp
+from .db import get_default_db_url, get_engine, get_session, init_db
 from .models import Account
 
 _TWEET_FTS_DDL = """
@@ -31,7 +31,7 @@ class SearchOwner:
 @dataclass(frozen=True)
 class SearchResult:
     tweet_id: str
-    created_at: Optional[datetime]
+    created_at: datetime | None
     full_text: str
     tweet_kind: str
     owner: SearchOwner
@@ -81,9 +81,9 @@ def search_tweets(
     session: Session,
     *,
     query: str,
-    author: Optional[str] = None,
-    since: Optional[date] = None,
-    until: Optional[date] = None,
+    author: str | None = None,
+    since: date | None = None,
+    until: date | None = None,
     limit: int = 20,
 ) -> list[SearchResult]:
     if not query.strip():
@@ -149,12 +149,12 @@ def search_tweets(
 
 
 def search_tweets_in_db(
-    db_url: Optional[str],
+    db_url: str | None,
     *,
     query: str,
-    author: Optional[str] = None,
-    since: Optional[date] = None,
-    until: Optional[date] = None,
+    author: str | None = None,
+    since: date | None = None,
+    until: date | None = None,
     limit: int = 20,
 ) -> list[SearchResult]:
     if not db_url:
@@ -183,7 +183,7 @@ def _normalize_author(author: str) -> str:
     return author
 
 
-def _resolve_author_account_id(session: Session, author: Optional[str]) -> Optional[str]:
+def _resolve_author_account_id(session: Session, author: str | None) -> str | None:
     if not author:
         return None
     normalized = _normalize_author(author)
@@ -194,8 +194,8 @@ def _resolve_author_account_id(session: Session, author: Optional[str]) -> Optio
     return account.account_id
 
 
-def _date_to_utc_datetime(value: Optional[date], *, end: bool) -> Optional[datetime]:
+def _date_to_utc_datetime(value: date | None, *, end: bool) -> datetime | None:
     if value is None:
         return None
     bound = time.max if end else time.min
-    return datetime.combine(value, bound, tzinfo=timezone.utc)
+    return datetime.combine(value, bound, tzinfo=UTC)

@@ -1,8 +1,8 @@
-import os
-import tempfile
-import shutil
 import atexit
+import os
 import re
+import shutil
+import tempfile
 
 # In-memory path for the temp directory
 temp_dir_path = None

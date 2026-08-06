@@ -2,7 +2,8 @@ import getpass
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
+
 
 def get_config_path() -> Path:
     """Get the path to the user-level config file."""
@@ -10,7 +11,7 @@ def get_config_path() -> Path:
     config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir / "config.json"
 
-def load_config() -> Dict[str, Any]:
+def load_config() -> dict[str, Any]:
     """Load configuration from the user-level config file."""
     config_path = get_config_path()
     if not config_path.exists():
@@ -19,10 +20,10 @@ def load_config() -> Dict[str, Any]:
     try:
         with open(config_path, 'r') as f:
             return json.load(f)
-    except (json.JSONDecodeError, IOError):
+    except (OSError, json.JSONDecodeError):
         return {}
 
-def save_config(config: Dict[str, Any]) -> None:
+def save_config(config: dict[str, Any]) -> None:
     """Save configuration to the user-level config file."""
     config_path = get_config_path()
     
@@ -32,7 +33,7 @@ def save_config(config: Dict[str, Any]) -> None:
         
         # Set secure permissions (read/write for owner only)
         os.chmod(config_path, 0o600)
-    except IOError as e:
+    except OSError as e:
         raise RuntimeError(f"Failed to save config: {e}")
 
 _PROFILE_OVERRIDE: str | None = None
@@ -46,26 +47,26 @@ _OAUTH2_APP_KEYS = {
 def _normalize_profile_name(profile: str) -> str:
     return profile.strip().lstrip("@")
 
-def _get_profiles(config: Dict[str, Any]) -> Dict[str, Dict[str, str]]:
+def _get_profiles(config: dict[str, Any]) -> dict[str, dict[str, str]]:
     profiles = config.get("profiles")
     if isinstance(profiles, dict):
         return profiles
     return {}
 
-def _get_oauth2_app_config(config: Dict[str, Any]) -> Dict[str, str]:
+def _get_oauth2_app_config(config: dict[str, Any]) -> dict[str, str]:
     oauth2_app = config.get("oauth2_app")
     if isinstance(oauth2_app, dict):
         return oauth2_app
     return {}
 
 
-def _get_embeddings_config(config: Dict[str, Any]) -> Dict[str, str]:
+def _get_embeddings_config(config: dict[str, Any]) -> dict[str, str]:
     embeddings = config.get("embeddings")
     if isinstance(embeddings, dict):
         return embeddings
     return {}
 
-def _get_active_profile(config: Dict[str, Any]) -> Optional[str]:
+def _get_active_profile(config: dict[str, Any]) -> str | None:
     active = config.get("active_profile")
     if isinstance(active, str) and active.strip():
         return _normalize_profile_name(active)
@@ -75,7 +76,7 @@ def _get_active_profile(config: Dict[str, Any]) -> Optional[str]:
             return _normalize_profile_name(username)
     return None
 
-def _resolve_profile_name(config: Dict[str, Any], profile: str | None = None) -> Optional[str]:
+def _resolve_profile_name(config: dict[str, Any], profile: str | None = None) -> str | None:
     if profile:
         return _normalize_profile_name(profile)
     if _PROFILE_OVERRIDE:
@@ -96,7 +97,7 @@ def clear_profile_override() -> None:
     global _PROFILE_OVERRIDE
     _PROFILE_OVERRIDE = None
 
-def get_active_profile() -> Optional[str]:
+def get_active_profile() -> str | None:
     config = load_config()
     return _get_active_profile(config)
 
@@ -134,7 +135,7 @@ def ensure_profile(username: str) -> None:
     config["active_profile"] = profile_name
     save_config(config)
 
-def get_credential(key: str, profile: str | None = None) -> Optional[str]:
+def get_credential(key: str, profile: str | None = None) -> str | None:
     """Get a credential from the config file."""
     config = load_config()
     profiles = _get_profiles(config)
@@ -158,7 +159,7 @@ def get_credential(key: str, profile: str | None = None) -> Optional[str]:
     return config.get(key)
 
 
-def get_embedding_credential(key: str) -> Optional[str]:
+def get_embedding_credential(key: str) -> str | None:
     config = load_config()
     embeddings = _get_embeddings_config(config)
     if key in embeddings:
@@ -166,7 +167,7 @@ def get_embedding_credential(key: str) -> Optional[str]:
     return config.get(key)
 
 
-def set_embedding_credentials(api_key: str, model: Optional[str]) -> None:
+def set_embedding_credentials(api_key: str, model: str | None) -> None:
     config = load_config()
     embeddings = _get_embeddings_config(config)
     if not embeddings:
@@ -191,7 +192,7 @@ def show_embedding_config() -> None:
     print(f"  OPENAI_API_KEY: {redacted}")
     print(f"  BIRDAPP_EMBEDDING_MODEL: {model}")
 
-def _ensure_profiles_config(config: Dict[str, Any], profile: str) -> Dict[str, str]:
+def _ensure_profiles_config(config: dict[str, Any], profile: str) -> dict[str, str]:
     profiles = config.get("profiles")
     if not isinstance(profiles, dict):
         legacy = {key: value for key, value in config.items() if isinstance(value, str)}

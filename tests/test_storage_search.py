@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from sqlmodel import Session
 
@@ -87,7 +87,7 @@ class TestStorageSearch(unittest.TestCase):
         self.assertIsNotNone(results[0].created_at)
         self.assertEqual(
             results[0].created_at,
-            datetime(2026, 1, 22, 21, 4, 29, tzinfo=timezone.utc),
+            datetime(2026, 1, 22, 21, 4, 29, tzinfo=UTC),
         )
 
     def test_search_returns_empty_for_blank_query(self) -> None:

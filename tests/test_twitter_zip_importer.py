@@ -2,13 +2,17 @@ import json
 import tempfile
 import unittest
 import zipfile
-from datetime import timezone
+from datetime import UTC
 from pathlib import Path
 
 from sqlmodel import Session, select
 
 from birdapp.storage.db import get_engine, init_db
-from birdapp.storage.importer import import_archive, import_archive_data, load_twitter_zip
+from birdapp.storage.importer import (
+    import_archive,
+    import_archive_data,
+    load_twitter_zip,
+)
 from birdapp.storage.models import Account, Tweet
 
 
@@ -102,7 +106,7 @@ class TestTwitterZipImporter(unittest.TestCase):
             self.assertEqual(tweet.account_id, "42")
             self.assertIsNotNone(tweet.created_at)
             assert tweet.created_at is not None
-            self.assertEqual(tweet.created_at.tzinfo, timezone.utc)
+            self.assertEqual(tweet.created_at.tzinfo, UTC)
             self.assertEqual(tweet.created_at.year, 2026)
 
     def test_load_twitter_zip_merges_multipart_files(self) -> None:
