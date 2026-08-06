@@ -6,8 +6,9 @@ import json
 import os
 import secrets
 import threading
+from collections.abc import Mapping, Sequence
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any, Mapping, NotRequired, Sequence, TypedDict
+from typing import Any, NotRequired, TypedDict
 from urllib.parse import parse_qs, quote, urlencode, urlparse
 
 import requests

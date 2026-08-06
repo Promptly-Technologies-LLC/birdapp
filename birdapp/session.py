@@ -1,13 +1,16 @@
 import json
 import os
 import shutil
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional
+from typing import Any
 
 import platformdirs
 from requests_oauthlib import OAuth2Session
+
 from .auth import create_oauth2_session
 from .config import get_active_profile
+
 
 def get_sessions_dir() -> str:
     """Get or create the sessions directory."""
@@ -51,7 +54,7 @@ def _migrate_legacy_tokens(sessions_dir: str) -> None:
     except OSError:
         return
 
-def _resolve_profile(profile: str | None, tokens: Dict[str, Any]) -> Optional[str]:
+def _resolve_profile(profile: str | None, tokens: dict[str, Any]) -> str | None:
     if profile:
         return profile
     active = get_active_profile()
@@ -62,7 +65,7 @@ def _resolve_profile(profile: str | None, tokens: Dict[str, Any]) -> Optional[st
         return next(iter(profiles.keys()))
     return None
 
-def _load_tokens(tokens_path: str) -> Dict[str, Any]:
+def _load_tokens(tokens_path: str) -> dict[str, Any]:
     if not os.path.exists(tokens_path):
         return {}
     try:
@@ -99,7 +102,7 @@ def save_token(user_id: str, token: Mapping[str, Any], profile: str | None = Non
     except OSError:
         pass
 
-def load_token(user_id: str, profile: str | None = None) -> Optional[Dict[str, Any]]:
+def load_token(user_id: str, profile: str | None = None) -> dict[str, Any] | None:
     """Load a user's token from the tokens file."""
     sessions_dir = get_sessions_dir()
     tokens_path = os.path.join(sessions_dir, "tokens.json")
@@ -116,11 +119,11 @@ def load_token(user_id: str, profile: str | None = None) -> Optional[Dict[str, A
         return None
     return tokens.get(user_id)
 
-def create_session_from_token(token: Dict[str, Any]) -> OAuth2Session:
+def create_session_from_token(token: dict[str, Any]) -> OAuth2Session:
     """Create a new OAuth2Session from a token."""
     return create_oauth2_session(token)
 
-def get_user_session(user_id: str, profile: str | None = None) -> tuple[Optional[OAuth2Session], Optional[Dict[str, Any]]]:
+def get_user_session(user_id: str, profile: str | None = None) -> tuple[OAuth2Session | None, dict[str, Any] | None]:
     """Get a user's session and token."""
     token = load_token(user_id, profile=profile)
     if token:
@@ -190,7 +193,7 @@ def has_oauth2_token(profile: str | None = None) -> bool:
     return False
 
 
-def load_any_oauth2_token(profile: str) -> tuple[str, Dict[str, Any]] | None:
+def load_any_oauth2_token(profile: str) -> tuple[str, dict[str, Any]] | None:
     """
     Load any stored OAuth2 token for a specific profile.
 
@@ -203,7 +206,7 @@ def load_any_oauth2_token(profile: str) -> tuple[str, Dict[str, Any]] | None:
     if not isinstance(profiles, dict):
         # Legacy format: tokens are not profile-scoped. Only treat it as
         # loadable when there is exactly one usable token.
-        usable: list[tuple[str, Dict[str, Any]]] = []
+        usable: list[tuple[str, dict[str, Any]]] = []
         for user_id, token in tokens.items():
             if (
                 isinstance(user_id, str)

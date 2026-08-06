@@ -29,7 +29,7 @@ packages = ["birdapp"]
 dev = [
     "pytest>=9.0.2",
     "python-semantic-release>=10.4.1",
-    "ruff>=0.14.13",
+    "ruff>=0.16.1",
     "ty>=0.0.13",
     "types-requests>=2.32.4.20250809",
 ]

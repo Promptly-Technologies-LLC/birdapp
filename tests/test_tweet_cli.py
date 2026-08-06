@@ -1,7 +1,7 @@
+import contextlib
+import io
 import sys
 import unittest
-import io
-import contextlib
 from unittest import mock
 
 from birdapp import main as main_module

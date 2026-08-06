@@ -30,8 +30,7 @@ def main() -> None:
     if ROOT_DIR not in sys.path:
         sys.path.insert(0, ROOT_DIR)
 
-    from birdapp import oauth2
-    from birdapp import session
+    from birdapp import oauth2, session
     from birdapp.config import get_active_profile, get_credential
 
     parser = argparse.ArgumentParser(

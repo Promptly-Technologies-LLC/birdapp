@@ -2,7 +2,7 @@ from pathlib import Path
 
 from platformdirs import user_data_dir
 from sqlalchemy.engine import Engine
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 
 def get_default_db_url() -> str:

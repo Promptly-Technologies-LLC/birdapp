@@ -1,5 +1,7 @@
 import logging
+
 import requests
+
 from .auth import create_oauth1_auth
 
 logger = logging.getLogger("uvicorn.error")

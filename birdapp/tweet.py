@@ -1,9 +1,11 @@
 import logging
 import os
+
 import requests
-from .media import create_media_payload
-from .auth import create_oauth1_auth
+
 from . import config as config_module
+from .auth import create_oauth1_auth
+from .media import create_media_payload
 from .utils import extract_tweet_id
 
 logger = logging.getLogger(__name__)
@@ -236,7 +238,7 @@ def post_tweet(text: str, media_path: str | None = None, reply_to: str | None = 
         return handle_tweet_response(response)
     except Exception as e:
         logger.error("Error posting tweet: %s", str(e))
-        return False, f"Error posting tweet: {str(e)}"
+        return False, f"Error posting tweet: {e!s}"
 
 def get_tweets_by_ids(tweet_ids: list[str]) -> tuple[bool, str | dict]:
     """
@@ -285,4 +287,4 @@ def get_tweets_by_ids(tweet_ids: list[str]) -> tuple[bool, str | dict]:
                 
     except Exception as e:
         logger.error("Error retrieving tweets: %s", str(e))
-        return False, f"Error retrieving tweets: {str(e)}"
+        return False, f"Error retrieving tweets: {e!s}"

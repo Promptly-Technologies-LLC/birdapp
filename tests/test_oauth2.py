@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlparse
 
 from birdapp import oauth2
 
+
 def _base64url_encode(raw: bytes) -> str:
     return base64.urlsafe_b64encode(raw).rstrip(b"=").decode("ascii")
 

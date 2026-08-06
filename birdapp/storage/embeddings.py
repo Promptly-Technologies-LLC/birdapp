@@ -2,17 +2,18 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from datetime import date, datetime, time, timezone
-from typing import Any, Iterable, Optional, Sequence
+from datetime import UTC, date, datetime, time
+from typing import Any
 
 from sqlalchemy import event, text
 from sqlalchemy.engine import Engine
 from sqlmodel import Session, select
 
 from birdapp.config import get_credential, get_embedding_credential
-from birdapp.storage.db import get_default_db_url, get_engine, get_session, init_db
 from birdapp.storage.dates import coerce_datetime, format_timestamp
+from birdapp.storage.db import get_default_db_url, get_engine, get_session, init_db
 from birdapp.storage.models import Account, Tweet
 
 _DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
@@ -31,7 +32,7 @@ class EmbeddingConfig:
 @dataclass(frozen=True)
 class SemanticSearchResult:
     tweet_id: str
-    created_at: Optional[datetime]
+    created_at: datetime | None
     full_text: str
     tweet_kind: str
     owner_account_id: str
@@ -52,7 +53,7 @@ class SemanticSearchResult:
         }
 
 
-def resolve_embedding_config(model_override: Optional[str]) -> EmbeddingConfig:
+def resolve_embedding_config(model_override: str | None) -> EmbeddingConfig:
     api_key = (
         os.getenv("OPENAI_API_KEY")
         or get_embedding_credential("OPENAI_API_KEY")
@@ -71,9 +72,9 @@ def resolve_embedding_config(model_override: Optional[str]) -> EmbeddingConfig:
 
 
 def embed_tweets_in_db(
-    db_url: Optional[str],
+    db_url: str | None,
     *,
-    model_override: Optional[str] = None,
+    model_override: str | None = None,
     batch_size: int = 100,
 ) -> int:
     if not db_url:
@@ -87,7 +88,7 @@ def embed_tweets_in_db(
 def embed_tweets(
     session: Session,
     *,
-    model_override: Optional[str] = None,
+    model_override: str | None = None,
     batch_size: int = 100,
 ) -> int:
     config = resolve_embedding_config(model_override)
@@ -130,14 +131,14 @@ def embed_tweets(
 
 
 def semantic_search_tweets_in_db(
-    db_url: Optional[str],
+    db_url: str | None,
     *,
     query: str,
-    author: Optional[str] = None,
-    since: Optional[date] = None,
-    until: Optional[date] = None,
+    author: str | None = None,
+    since: date | None = None,
+    until: date | None = None,
     limit: int = 20,
-    model_override: Optional[str] = None,
+    model_override: str | None = None,
 ) -> list[SemanticSearchResult]:
     if not db_url:
         db_url = get_default_db_url()
@@ -159,11 +160,11 @@ def semantic_search_tweets(
     session: Session,
     *,
     query: str,
-    author: Optional[str] = None,
-    since: Optional[date] = None,
-    until: Optional[date] = None,
+    author: str | None = None,
+    since: date | None = None,
+    until: date | None = None,
     limit: int = 20,
-    model_override: Optional[str] = None,
+    model_override: str | None = None,
 ) -> list[SemanticSearchResult]:
     if not query.strip():
         return []
@@ -306,7 +307,7 @@ def _get_openai_client(api_key: str) -> Any:
     return OpenAI(api_key=api_key)
 
 
-def _resolve_author_account_id(session: Session, author: Optional[str]) -> Optional[str]:
+def _resolve_author_account_id(session: Session, author: str | None) -> str | None:
     if not author:
         return None
     normalized = author.strip().lstrip("@")
@@ -315,11 +316,11 @@ def _resolve_author_account_id(session: Session, author: Optional[str]) -> Optio
     return account_id
 
 
-def _date_to_utc_datetime(value: Optional[date], *, end: bool) -> Optional[datetime]:
+def _date_to_utc_datetime(value: date | None, *, end: bool) -> datetime | None:
     if value is None:
         return None
     bound = time.max if end else time.min
-    return datetime.combine(value, bound, tzinfo=timezone.utc)
+    return datetime.combine(value, bound, tzinfo=UTC)
 
 
 def _chunked(items: Sequence[Any], size: int) -> Iterable[Sequence[Any]]:

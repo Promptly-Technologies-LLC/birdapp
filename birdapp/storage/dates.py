@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 
-def coerce_datetime(value: Any) -> Optional[datetime]:
+def coerce_datetime(value: Any) -> datetime | None:
     if value is None:
         return None
     if isinstance(value, datetime):
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
     if isinstance(value, str):
         candidate = value.strip()
         if not candidate:
@@ -21,16 +21,16 @@ def coerce_datetime(value: Any) -> Optional[datetime]:
         except ValueError:
             return None
         if parsed.tzinfo is None:
-            return parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
+            return parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
     return None
 
 
-def format_timestamp(value: Optional[datetime]) -> Optional[str]:
+def format_timestamp(value: datetime | None) -> str | None:
     if value is None:
         return None
     return (
-        value.astimezone(timezone.utc)
+        value.astimezone(UTC)
         .isoformat(timespec="milliseconds")
         .replace("+00:00", "Z")
     )
