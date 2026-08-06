@@ -5,7 +5,7 @@ import zipfile
 from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any
 
 import requests
 from sqlmodel import Session, select
@@ -27,8 +27,6 @@ from .models import (
     UploadOptions,
 )
 from .search import ensure_tweet_fts, sync_tweet_fts
-
-ModelType = TypeVar("ModelType")
 
 ARCHIVE_URL_TEMPLATE = (
     "https://fabxmporizzqflnftavs.supabase.co/storage/v1/object/public/"
@@ -76,7 +74,9 @@ def _load_twitter_zip_manifest(archive: zipfile.ZipFile) -> dict[str, Any] | Non
     contents = raw.decode("utf-8")
     parsed = _parse_js_assigned_json_payload(contents)
     if not isinstance(parsed, dict):
-        raise ValueError("Twitter archive manifest did not parse to an object.")
+        # ValueError, not TypeError: the archive is a user-supplied data file
+        # whose contents are malformed, matching the other archive checks here.
+        raise ValueError("Twitter archive manifest did not parse to an object.")  # noqa: TRY004
     return parsed
 
 
@@ -146,7 +146,9 @@ def load_twitter_zip(path: str | Path) -> dict[str, Any]:
                 contents = raw.decode("utf-8")
                 parsed = _parse_js_assigned_json_payload(contents)
                 if not isinstance(parsed, list):
-                    raise ValueError(
+                    # See note above: malformed archive contents are a
+                    # ValueError, consistent with the rest of this module.
+                    raise ValueError(  # noqa: TRY004
                         f"Twitter archive file {file_name!r} did not parse to a list."
                     )
                 cast_list: list[Any] = parsed
@@ -178,7 +180,7 @@ def _indices_to_bounds(indices: Iterable[Any]) -> tuple[int | None, int | None]:
         return None, None
     return _safe_int(items[0]), _safe_int(items[1])
 
-def _exists(session: Session, model: type[ModelType], filters: Sequence[Any]) -> bool:
+def _exists[ModelType](session: Session, model: type[ModelType], filters: Sequence[Any]) -> bool:
     statement = select(model).where(*filters).limit(1)
     return session.exec(statement).first() is not None
 

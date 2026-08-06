@@ -79,7 +79,7 @@ def _parse_date(value: str | None, *, flag: str) -> date | None:
     if value is None:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d").date()
+        return date.fromisoformat(value)
     except ValueError as exc:
         raise ValueError(f"Invalid date for {flag}. Use YYYY-MM-DD.") from exc
 
@@ -417,7 +417,7 @@ def main() -> None:
         # Validate arguments
         if not text and not args.media:
             print("Error: Cannot post empty tweet without media")
-            exit(1)
+            raise SystemExit(1)
 
         if _has_oauth2_config() and not has_oauth2_token(profile=profile) and not _has_oauth1_credentials():
             profile_hint = f"--profile {profile} " if profile else ""

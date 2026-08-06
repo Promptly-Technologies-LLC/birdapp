@@ -34,6 +34,17 @@ dev = [
     "types-requests>=2.32.4.20250809",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# These modules are the CLI's error boundaries: each command handler and each
+# `(success, message)`-returning API wrapper deliberately catches `Exception`
+# so a failure becomes a printed message or a return value rather than a
+# traceback. BLE001 stays enabled everywhere else.
+"birdapp/main.py" = ["BLE001"]
+"birdapp/media.py" = ["BLE001"]
+"birdapp/storage/embeddings.py" = ["BLE001"]
+"birdapp/tweet.py" = ["BLE001"]
+"birdapp/user.py" = ["BLE001"]
+
 [tool.semantic_release]
 assets = []
 build_command_env = []
