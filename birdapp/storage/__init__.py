@@ -1,5 +1,5 @@
 from .db import get_default_db_url, get_engine, get_session, init_db
-from .importer import build_archive_url, import_archive
+from .importer import import_archive
 from .models import (
     Account,
     Follower,
@@ -30,7 +30,6 @@ __all__ = [
     "TweetUrl",
     "TweetUserMention",
     "UploadOptions",
-    "build_archive_url",
     "get_default_db_url",
     "get_engine",
     "get_session",

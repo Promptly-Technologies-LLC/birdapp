@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlmodel import Session, select
 
 from birdapp.storage.db import get_engine, init_db
-from birdapp.storage.importer import build_archive_url, import_archive_data
+from birdapp.storage.importer import import_archive_data
 from birdapp.storage.models import (
     Follower,
     Following,
@@ -20,14 +20,6 @@ from birdapp.storage.models import (
 
 
 class TestArchiveImporter(unittest.TestCase):
-    def test_build_archive_url(self) -> None:
-        url = build_archive_url("ExampleUser")
-        self.assertEqual(
-            url,
-            "https://fabxmporizzqflnftavs.supabase.co/storage/v1/object/public/"
-            "archives/ExampleUser/archive.json",
-        )
-
     def test_import_archive_data_inserts_and_parses(self) -> None:
         data = {
             "upload-options": {
