@@ -2,6 +2,29 @@
 
 <!-- version list -->
 
+## v2.2.0 (2026-10-11)
+
+### Build System
+
+- Upgrade ruff to 0.16.1 and apply automated lint fixes
+  ([`f7a1462`](https://github.com/Promptly-Technologies-LLC/birdapp/commit/f7a1462c357f0571c55cdfd13795721b6cae67c6))
+
+### Code Style
+
+- Resolve remaining ruff 0.16 lint violations
+  ([`c9b6575`](https://github.com/Promptly-Technologies-LLC/birdapp/commit/c9b657568e33dfdd33664d2a6729f3f66115d5fc))
+
+### Continuous Integration
+
+- Enforce ruff check on pull requests
+  ([`c69a889`](https://github.com/Promptly-Technologies-LLC/birdapp/commit/c69a88921054b3cc608f947aa39c5a2eb01b0086))
+
+### Features
+
+- Import Community Archive usernames through PostgREST
+  ([`2a6e708`](https://github.com/Promptly-Technologies-LLC/birdapp/commit/2a6e7081fef1c9a4604c30494ba2577b8ccc5b5a))
+
+
 ## v2.1.4 (2026-03-18)
 
 ### Bug Fixes
