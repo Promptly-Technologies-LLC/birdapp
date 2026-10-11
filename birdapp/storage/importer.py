@@ -10,6 +10,7 @@ from typing import Any
 import requests
 from sqlmodel import Session, select
 
+from .community_archive import fetch_community_archive
 from .db import get_default_db_url, get_engine, get_session, init_db
 from .models import (
     Account,
@@ -28,16 +29,7 @@ from .models import (
 )
 from .search import ensure_tweet_fts, sync_tweet_fts
 
-ARCHIVE_URL_TEMPLATE = (
-    "https://fabxmporizzqflnftavs.supabase.co/storage/v1/object/public/"
-    "archives/{username}/archive.json"
-)
-
 _TWITTER_ZIP_MANIFEST_PATH = "data/manifest.js"
-
-
-def build_archive_url(username: str) -> str:
-    return ARCHIVE_URL_TEMPLATE.format(username=username)
 
 
 def download_archive(url: str) -> dict[str, Any]:
@@ -1060,22 +1052,18 @@ def import_archive(
     if not db_url:
         db_url = get_default_db_url()
 
-    if not url:
-        if username:
-            url = build_archive_url(username)
-        elif path is None:
-            raise ValueError("Provide username, url, or path.")
-
     if url:
         data = download_archive(url)
-    else:
-        if path is None:
-            raise ValueError("Provide username, url, or path.")
+    elif username:
+        data = fetch_community_archive(username)
+    elif path is not None:
         path_obj = Path(path)
         if zipfile.is_zipfile(path_obj):
             data = load_twitter_zip(path_obj)
         else:
             data = load_archive(path_obj)
+    else:
+        raise ValueError("Provide username, url, or path.")
 
     engine = get_engine(db_url)
     init_db(engine)

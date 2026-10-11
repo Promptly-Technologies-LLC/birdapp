@@ -164,13 +164,15 @@ To get the ZIP from Twitter/X:
 
 ### Importing from the Twitter Community Archive (optional)
 
-If you have shared your tweets with the public via the Twitter Community Archive, you can download them from the archive and import them into a SQLite database:
+If you have shared your tweets with the public via the Twitter Community Archive, birdapp reads that account from the archive's PostgREST API and imports it into SQLite:
 
 ```bash
 birdapp import-archive --username yourusername
 ```
 
-If you've already downloaded `archive.json`, you can import it from a local file. The importer auto-detects the file type and safely parses the JSON payloads:
+The public per-user `archive.json` file is no longer published. Username import pages tweets, likes, followers, and following (1,000 rows at a time). It stores tweet text, timestamps, engagement counts, replies, URLs, media, and mentions. Language, source, hashtags, symbols, and note-tweet payloads are not part of the public API, so those fields stay empty.
+
+A saved `archive.json`, or a Twitter data-export ZIP, can still be imported from disk. The importer auto-detects the file type and safely parses the JSON payloads:
 
 ```bash
 birdapp import-archive --path /path/to/archive.json
